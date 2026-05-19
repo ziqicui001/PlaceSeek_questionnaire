@@ -1,0 +1,4 @@
+python Questionnaire_SVI/dataprocess/prepare_from_findtop20.py `
+  --input_csv "4_FindTop20/outputs/M2_m5_skyscraper/m2_m5_skyscraper_top20_review_sheet.csv" `
+  --query_id M2 `
+  --activate

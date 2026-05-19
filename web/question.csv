@@ -1,0 +1,5 @@
+question_id,question_text,question_type,options_json,required,display_order
+physical_match,"Does the image visually contain the required physical element(s) for this query?",single_choice,"{""1"":""Clearly no"",""2"":""Probably no"",""3"":""Probably yes"",""4"":""Clearly yes""}",1,1
+affective_match,"Does the image visually support the required affective/perceptual quality for this query?",single_choice,"{""1"":""Clearly no"",""2"":""Probably no"",""3"":""Probably yes"",""4"":""Clearly yes""}",1,2
+overall_match,"Overall, how well does this image match the full query?",single_choice,"{""1"":""Clearly not a match"",""2"":""Mostly not a match"",""3"":""Mostly a match"",""4"":""Clearly a match""}",1,3
+comment,"Optional comment",text,"{}",0,4
