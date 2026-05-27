@@ -90,6 +90,18 @@ def copy_image(src: Path, dst_dir: Path, review_id: str) -> tuple[str, str]:
     return image_file_name, f"images/{image_file_name}"
 
 
+def clear_image_dir(images_dir: Path) -> int:
+    if not images_dir.exists():
+        return 0
+
+    removed = 0
+    for path in images_dir.iterdir():
+        if path.is_file():
+            path.unlink()
+            removed += 1
+    return removed
+
+
 def build_annotation_items(
     input_rows: list[dict[str, str]],
     input_fieldnames: list[str],
@@ -142,6 +154,7 @@ def main() -> None:
     parser.add_argument("--output_csv", default=str(DEFAULT_OUTPUT_CSV))
     parser.add_argument("--images_dir", default=str(DEFAULT_IMAGES_DIR))
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--clear_images", action="store_true", help="Delete existing files in images_dir before copying.")
     parser.add_argument("--activate", action="store_true", help="Write to web/annotation_items.csv. Kept for explicitness.")
     args = parser.parse_args()
 
@@ -150,6 +163,7 @@ def main() -> None:
     output_csv = resolve_path(args.output_csv)
     images_dir = resolve_path(args.images_dir)
 
+    removed = clear_image_dir(images_dir) if args.clear_images else 0
     input_rows, input_fieldnames = read_csv(input_csv)
     query_row = load_query_row(queries_csv, args.query_id)
     out_rows = build_annotation_items(input_rows, input_fieldnames, query_row, images_dir, args.seed)
@@ -174,6 +188,8 @@ def main() -> None:
     copied = sum(1 for row in out_rows if row.get("copy_status") == "copied")
     print(f"[DONE] Saved annotation items: {output_csv}")
     print(f"[DONE] Images dir: {images_dir}")
+    if args.clear_images:
+        print(f"[INFO] Cleared old images: {removed}")
     print(f"[INFO] Rows: {len(out_rows)}")
     print(f"[INFO] Copied images: {copied}/{len(out_rows)}")
 

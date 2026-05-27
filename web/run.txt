@@ -1,4 +1,5 @@
-python Questionnaire_SVI/dataprocess/prepare_from_findtop20.py `
-  --input_csv "4_FindTop20/outputs/M2_m5_skyscraper/m2_m5_skyscraper_top20_review_sheet.csv" `
-  --query_id M2 `
+python PlaceSeek_questionnaire/dataprocess/prepare_from_findtop20.py `
+  --input_csv "4_FindTop20/outputs_physical_affective/A1_m5_physical_affective/a1_m5_physical_affective_top20_review_sheet.csv" `
+  --query_id A1 `
+  --clear_images `
   --activate
