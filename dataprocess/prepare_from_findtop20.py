@@ -24,6 +24,8 @@ WEB_DIR = QUESTIONNAIRE_ROOT / "web"
 DEFAULT_QUERIES_CSV = WEB_DIR / "queries.csv"
 DEFAULT_OUTPUT_CSV = WEB_DIR / "annotation_items.csv"
 DEFAULT_IMAGES_DIR = WEB_DIR / "images"
+DEFAULT_PROMPT_BANK_ROOT = REPO_ROOT / "7_QueryTasks" / "prompt_banks"
+DEFAULT_PARSED_ROOT = REPO_ROOT / "7_QueryTasks" / "llm_parsed"
 
 
 def safe_filename(value: str, max_len: int = 120) -> str:
@@ -63,12 +65,69 @@ def write_csv(path: Path, rows: list[dict[str, str]], preferred_cols: list[str])
         writer.writerows(rows)
 
 
+def default_instruction() -> str:
+    return "Please judge the image only based on visible cues in the image."
+
+
+def clean_term_text(value: str, fallback: str) -> str:
+    text = str(value or "").strip()
+    return text if text else fallback
+
+
+def load_terms_from_parsed(query_id: str, kind: str) -> str:
+    path = DEFAULT_PARSED_ROOT / query_id / f"{kind}_terms.csv"
+    if not path.exists():
+        return ""
+
+    rows, _ = read_csv(path)
+    terms = []
+    for row in rows:
+        term = row.get("term", "").strip()
+        if term and term not in terms:
+            terms.append(term)
+    return "; ".join(terms)
+
+
+def load_prompt_text(query_id: str) -> str:
+    prompt_path = DEFAULT_PROMPT_BANK_ROOT / f"{query_id}.txt"
+    if not prompt_path.exists():
+        return ""
+    return prompt_path.read_text(encoding="utf-8-sig").strip()
+
+
 def load_query_row(queries_csv: Path, query_id: str) -> dict[str, str]:
+    prompt_text = load_prompt_text(query_id)
+    physical_terms = load_terms_from_parsed(query_id, "physical")
+    affective_terms = load_terms_from_parsed(query_id, "affective")
+    query_type = ""
+    instruction_text = default_instruction()
+
     rows, _ = read_csv(queries_csv)
     for row in rows:
         if row.get("query_id", "").strip().lower() == query_id.strip().lower():
-            return row
-    raise ValueError(f"query_id={query_id} not found in {queries_csv}")
+            query_type = row.get("query_type", "").strip()
+            instruction_text = row.get("instruction_text", "").strip() or default_instruction()
+            physical_terms = physical_terms or row.get("physical_target_text", "").strip()
+            affective_terms = affective_terms or row.get("affective_target_text", "").strip()
+            break
+
+    if not prompt_text:
+        raise ValueError(f"Prompt text not found: {DEFAULT_PROMPT_BANK_ROOT / f'{query_id}.txt'}")
+
+    return {
+        "query_id": query_id,
+        "query_text": prompt_text,
+        "query_type": query_type,
+        "physical_target_text": clean_term_text(
+            physical_terms,
+            "No specific physical object requirement; judge whether the visible place is compatible with the query.",
+        ),
+        "affective_target_text": clean_term_text(
+            affective_terms,
+            "No specific affective requirement; judge whether the scene is visually compatible with the query.",
+        ),
+        "instruction_text": instruction_text,
+    }
 
 
 def choose_source_image(row: dict[str, str]) -> Path | None:
@@ -149,7 +208,7 @@ def build_annotation_items(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare Questionnaire_SVI annotation_items.csv from FindTop20 review sheet.")
     parser.add_argument("--input_csv", required=True, help="4_FindTop20 review sheet CSV.")
-    parser.add_argument("--query_id", required=True, help="Query ID to load from web/queries.csv.")
+    parser.add_argument("--query_id", required=True, help="Query ID. Query text is loaded from 7_QueryTasks/prompt_banks/{query_id}.txt.")
     parser.add_argument("--queries_csv", default=str(DEFAULT_QUERIES_CSV))
     parser.add_argument("--output_csv", default=str(DEFAULT_OUTPUT_CSV))
     parser.add_argument("--images_dir", default=str(DEFAULT_IMAGES_DIR))

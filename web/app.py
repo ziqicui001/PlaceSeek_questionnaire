@@ -130,23 +130,45 @@ def sanitize_annotator_id(s: str) -> str:
     return "".join(allowed)
 
 
-def get_query_instruction(query_id: str, fallback_query_text: str):
+def clean_text(value) -> str:
+    if pd.isna(value):
+        return ""
+    return str(value).strip()
+
+
+def first_nonempty(*values) -> str:
+    for value in values:
+        text = clean_text(value)
+        if text:
+            return text
+    return ""
+
+
+def get_query_instruction(query_id: str, fallback_query_text: str, current_row=None):
+    item_query_text = current_row.get("query_text", "") if current_row is not None else ""
+    item_query_type = current_row.get("query_type", "") if current_row is not None else ""
+    item_physical_target = current_row.get("physical_target_text", "") if current_row is not None else ""
+    item_affective_target = current_row.get("affective_target_text", "") if current_row is not None else ""
+    item_instruction = current_row.get("instruction_text", "") if current_row is not None else ""
+
     row = queries_df[queries_df["query_id"] == query_id]
     if len(row) > 0:
-        query_text = row.iloc[0].get("query_text", fallback_query_text)
-        query_type = row.iloc[0].get("query_type", "")
-        physical_target_text = row.iloc[0].get("physical_target_text", "")
-        affective_target_text = row.iloc[0].get("affective_target_text", "")
-        instruction_text = row.iloc[0].get(
-            "instruction_text",
-            "Please judge the image only based on visible cues in the image."
+        qrow = row.iloc[0]
+        query_text = first_nonempty(item_query_text, qrow.get("query_text", ""), fallback_query_text)
+        query_type = first_nonempty(item_query_type, qrow.get("query_type", ""))
+        physical_target_text = first_nonempty(item_physical_target, qrow.get("physical_target_text", ""))
+        affective_target_text = first_nonempty(item_affective_target, qrow.get("affective_target_text", ""))
+        instruction_text = first_nonempty(
+            item_instruction,
+            qrow.get("instruction_text", ""),
+            "Please judge the image only based on visible cues in the image.",
         )
     else:
-        query_text = fallback_query_text
-        query_type = ""
-        physical_target_text = ""
-        affective_target_text = ""
-        instruction_text = "Please judge the image only based on visible cues in the image."
+        query_text = first_nonempty(item_query_text, fallback_query_text)
+        query_type = clean_text(item_query_type)
+        physical_target_text = clean_text(item_physical_target)
+        affective_target_text = clean_text(item_affective_target)
+        instruction_text = first_nonempty(item_instruction, "Please judge the image only based on visible cues in the image.")
     return query_text, query_type, physical_target_text, affective_target_text, instruction_text
 
 
@@ -329,7 +351,7 @@ if current_index >= total_items:
 current_row = items_df.iloc[current_index]
 query_id = current_row["query_id"]
 query_text = current_row["query_text"]
-query_text, query_type, physical_target_text, affective_target_text, instruction_text = get_query_instruction(query_id, query_text)
+query_text, query_type, physical_target_text, affective_target_text, instruction_text = get_query_instruction(query_id, query_text, current_row)
 
 image_path = resolve_image_path(current_row, items_df.columns)
 
