@@ -9,7 +9,7 @@ cd web
 streamlit run app.py
 ```
 
-## Switch To A New Query
+## Switch To A Single Query
 
 From the main `lang2img` workspace, regenerate the web input files with:
 
@@ -24,10 +24,26 @@ python PlaceSeek_questionnaire/dataprocess/prepare_from_findtop20.py `
 For a different query, only change:
 
 - `--input_csv`: the new `4_FindTop20` review sheet.
-- `--query_id`: the matching query ID in `web/queries.csv`.
+- `--query_id`: the matching query ID. Query text is loaded from
+  `7_QueryTasks/prompt_banks/{query_id}.txt`.
 
 `--clear_images` removes images from the previous questionnaire before copying
 the new task images, keeping the GitHub repository small.
+
+## Build A Multi-Query Questionnaire
+
+Use one website for multiple queries by passing multiple `--job` arguments:
+
+```powershell
+python PlaceSeek_questionnaire/dataprocess/prepare_multi_from_findtop20.py `
+  --job "A3=4_FindTop20/outputs_physical_affective/A3_m5_physical_affective/a3_m5_physical_affective_top20_review_sheet.csv" `
+  --job "A4=4_FindTop20/outputs_physical_affective/A4_m5_physical_affective/a4_m5_physical_affective_top20_review_sheet.csv" `
+  --clear_images `
+  --activate
+```
+
+For 9 tasks, repeat `--job QUERY_ID=CSV_PATH` once per task. The app will show
+the correct query and requirements for each row.
 
 ## Files
 
@@ -37,5 +53,6 @@ the new task images, keeping the GitHub repository small.
 - `web/question.csv`: generic physical, affective, and overall match questions.
 - `web/images/`: copied images used by the app.
 - `dataprocess/prepare_from_findtop20.py`: adapter from `4_FindTop20` review sheets.
+- `dataprocess/prepare_multi_from_findtop20.py`: multi-query adapter.
 
 Results are saved locally under `web/results/` and are ignored by git.
