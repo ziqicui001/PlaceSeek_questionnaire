@@ -101,6 +101,9 @@ if missing_q_cols:
 if "annotator_id" not in st.session_state:
     st.session_state.annotator_id = ""
 
+if "selected_query_id" not in st.session_state:
+    st.session_state.selected_query_id = ""
+
 if "started" not in st.session_state:
     st.session_state.started = False
 
@@ -188,6 +191,17 @@ def render_query_context(query_text: str, query_type: str, physical_target_text:
         st.write(affective_target_text)
 
 
+def available_task_options(df: pd.DataFrame) -> list[tuple[str, str]]:
+    options = []
+    for query_id, group in df.groupby("query_id", sort=True):
+        query_text = first_nonempty(group.iloc[0].get("query_text", ""), "")
+        label = f"{query_id} ({len(group)} images)"
+        if query_text:
+            label = f"{label}: {query_text}"
+        options.append((str(query_id), label))
+    return options
+
+
 def save_results_to_csv():
     """
     本地/会话内自动保存。
@@ -201,7 +215,8 @@ def save_results_to_csv():
         return None
 
     df = pd.DataFrame(st.session_state.responses)
-    out_path = RESULTS_DIR / f"responses_{annotator_id}.csv"
+    selected_query_id = sanitize_annotator_id(st.session_state.get("selected_query_id", "all")) or "all"
+    out_path = RESULTS_DIR / f"responses_{annotator_id}_{selected_query_id}.csv"
     df.to_csv(out_path, index=False, encoding="utf-8-sig")
     return out_path
 
@@ -212,6 +227,7 @@ def reset_study():
     st.session_state.show_instruction = True
     st.session_state.started = False
     st.session_state.annotator_id = ""
+    st.session_state.selected_query_id = ""
 
 
 def render_single_choice(question_id, question_text, options, current_row):
@@ -292,11 +308,22 @@ if not st.session_state.started:
         placeholder="e.g. A01"
     )
 
+    task_options = available_task_options(items_df)
+    task_labels = [""] + [label for _, label in task_options]
+    label_to_query_id = {label: query_id for query_id, label in task_options}
+    selected_label = st.selectbox(
+        "Select task",
+        options=task_labels,
+        index=0,
+        help="Choose one query task to annotate in this session.",
+    )
+
     st.markdown("""
 Please enter your annotator ID before starting.
 
 This tool will:
 - show one image at a time
+- show only the selected query task
 - present the query and annotation questions
 - save your answers locally as a CSV file
 """)
@@ -305,8 +332,11 @@ This tool will:
         annotator_id = sanitize_annotator_id(annotator_id)
         if annotator_id == "":
             st.warning("Please enter a valid annotator ID.")
+        elif selected_label == "":
+            st.warning("Please select a task.")
         else:
             st.session_state.annotator_id = annotator_id
+            st.session_state.selected_query_id = label_to_query_id[selected_label]
             st.session_state.started = True
             st.rerun()
 
@@ -316,7 +346,16 @@ This tool will:
 # =========================
 # 当前记录
 # =========================
-total_items = len(items_df)
+selected_query_id = st.session_state.get("selected_query_id", "")
+active_items_df = items_df[items_df["query_id"].astype(str) == str(selected_query_id)].reset_index(drop=True)
+if active_items_df.empty:
+    st.error(f"No annotation items found for selected task: {selected_query_id}")
+    if st.button("Back to task selection"):
+        reset_study()
+        st.rerun()
+    st.stop()
+
+total_items = len(active_items_df)
 current_index = st.session_state.current_index
 
 if current_index >= total_items:
@@ -325,6 +364,7 @@ if current_index >= total_items:
     out_path = save_results_to_csv()
 
     st.write(f"Annotator ID: **{st.session_state.annotator_id}**")
+    st.write(f"Selected task: **{selected_query_id}**")
     st.write(f"Total responses: **{len(st.session_state.responses)}**")
 
     st.info(
@@ -348,7 +388,7 @@ if current_index >= total_items:
     st.stop()
 
 
-current_row = items_df.iloc[current_index]
+current_row = active_items_df.iloc[current_index]
 query_id = current_row["query_id"]
 query_text = current_row["query_text"]
 query_text, query_type, physical_target_text, affective_target_text, instruction_text = get_query_instruction(query_id, query_text, current_row)
