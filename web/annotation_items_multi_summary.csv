@@ -1,4 +1,9 @@
 ﻿query_id,rows,copied_images,input_csv,query_text
+A1,90,90,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\A1_m5_physical_affective\a1_m5_physical_affective_top20_review_sheet.csv,I want to find a walkable street surrounded by vintage-style historic buildings.
 A3,76,76,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\A3_m5_physical_affective\a3_m5_physical_affective_top20_review_sheet.csv,a tree-lined shaded path suitable for jogging.
 A4,54,54,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\A4_m5_physical_affective\a4_m5_physical_affective_top20_review_sheet.csv,I'm looking for a romantic public square with visible statue or sculptures.
+A5,74,74,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\A5_m5_physical_affective\a5_m5_physical_affective_top20_review_sheet.csv,I'm looking for a lively waterside place in the city.
+M2,77,77,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\M2_m5_physical_affective\m2_m5_physical_affective_top20_review_sheet.csv,I want to find a modern urban place with visible skyscrapers around me.
 M3,72,72,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\M3_m5_physical_affective\m3_m5_physical_affective_top20_review_sheet.csv,a well-maintained street with artistic murals or graffiti.
+P2,81,81,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\P2_m5_physical_affective\p2_m5_physical_affective_top20_review_sheet.csv,I'm looking for a tree-lined street with tram tracks running down the middle.
+P4,75,75,D:\AAG\Milano_SVI\lang2img\4_FindTop20\outputs_physical_affective\P4_m5_physical_affective\p4_m5_physical_affective_top20_review_sheet.csv,a wealthy and safe street.
