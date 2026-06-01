@@ -45,6 +45,20 @@ python PlaceSeek_questionnaire/dataprocess/prepare_multi_from_findtop20.py `
 For 9 tasks, repeat `--job QUERY_ID=CSV_PATH` once per task. The app will show
 the correct query and requirements for each row.
 
+## Add Supplement Tasks From Final Rankings
+
+Use this when new `Final_Ranking_Tables` are available but previously published
+images should not be annotated again:
+
+```powershell
+python PlaceSeek_questionnaire/dataprocess/prepare_supplement_from_final_tables.py --activate
+```
+
+The script keeps the current `web/annotation_items.csv`, compares each final
+ranking row by `query_id + pano_id/yaw`, and only appends unseen images. If a
+query already exists online, new rows are published as `QUERY_supplement`; if a
+query is completely new, such as `A2`, it is published as `A2`.
+
 ## Files
 
 - `web/app.py`: Streamlit annotation app.
@@ -54,5 +68,7 @@ the correct query and requirements for each row.
 - `web/images/`: copied images used by the app.
 - `dataprocess/prepare_from_findtop20.py`: adapter from `4_FindTop20` review sheets.
 - `dataprocess/prepare_multi_from_findtop20.py`: multi-query adapter.
+- `dataprocess/prepare_supplement_from_final_tables.py`: supplement adapter that
+  appends only unannotated final-ranking images.
 
 Results are saved locally under `web/results/` and are ignored by git.

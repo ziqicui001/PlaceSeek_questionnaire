@@ -1,0 +1,10 @@
+﻿query_id,task_query_id,input_csv,input_rows,new_rows,copied_images,status
+A1,A1_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\A1\a1_m5_final_ranking_top20.csv,97,7,7,added
+A2,A2,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\A2\a2_m5_final_ranking_top20.csv,89,89,89,added
+A3,A3_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\A3\a3_m5_final_ranking_top20.csv,89,13,13,added
+A4,A4_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\A4\a4_m5_final_ranking_top20.csv,72,18,18,added
+A5,A5_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\A5\a5_m5_final_ranking_top20.csv,94,20,20,added
+M2,M2_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\M2\m2_m5_final_ranking_top20.csv,92,15,15,added
+M3,M3_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\M3\m3_m5_final_ranking_top20.csv,86,14,14,added
+P2,P2_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\P2\p2_m5_final_ranking_top20.csv,97,16,16,added
+P4,P4_supplement,D:\AAG\Milano_SVI\lang2img\3_Rerank\Rerank_final\Final_Ranking_Tables\P4\p4_m5_final_ranking_top20.csv,88,13,13,added
