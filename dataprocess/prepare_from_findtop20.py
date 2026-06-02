@@ -131,7 +131,7 @@ def load_query_row(queries_csv: Path, query_id: str) -> dict[str, str]:
 
 
 def choose_source_image(row: dict[str, str]) -> Path | None:
-    for col in ["copied_image_path", "image_path"]:
+    for col in ["copied_image_path", "image_path", "best_view_path"]:
         value = row.get(col, "").strip()
         if value:
             path = Path(value)
